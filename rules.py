@@ -1,3 +1,13 @@
+from enum import Enum
+
+
+
+class ArmorCategory(Enum):
+    NONE = "none"
+    LIGHT = "light"
+    MEDIUM = "medium"
+    HEAVY = "heavy"
+
 def ability_modifier(score: int) -> int:
     return (score - 10) // 2
 
@@ -21,3 +31,18 @@ def passive_score(skill_bonus: int):
 
 def initiative_bonus(dex_modifier: int, additional_bonus: int = 0):
     return dex_modifier + additional_bonus
+
+def armor_class(armor_base: int, dex_modifier: int, armor: ArmorCategory, shield: bool = False, additional_bonus: int = 0):
+    if shield:
+        shield_value = 2
+    else:
+        shield_value = 0
+
+    if armor == ArmorCategory.NONE:
+        return 10 + dex_modifier + shield_value + additional_bonus
+    elif armor == ArmorCategory.LIGHT:
+        return armor_base + dex_modifier + shield_value + additional_bonus
+    elif armor == ArmorCategory.MEDIUM:
+        return armor_base + min(dex_modifier, 2) + shield_value + additional_bonus
+    elif armor == ArmorCategory.HEAVY: 
+        return armor_base + shield_value + additional_bonus

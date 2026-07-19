@@ -5,6 +5,8 @@ from rules import(
     saving_throw_bonus, 
     passive_score,
     initiative_bonus,
+    armor_class,
+    ArmorCategory,
 ) 
 
 
@@ -30,3 +32,10 @@ def test_passive_score():
 def test_initiative_bonus():
     assert initiative_bonus(3) == 3
     assert initiative_bonus(3, 2) == 5
+
+def test_armor_class():
+    assert armor_class(0, 2, ArmorCategory.NONE, False, 3) == 15
+    assert armor_class(12, 2, ArmorCategory.LIGHT) == 14
+    assert armor_class(12, 4, ArmorCategory.MEDIUM, True, 1) == 17
+    assert armor_class(12, 1, ArmorCategory.MEDIUM, True, 1) == 16
+    assert armor_class(15, 4, ArmorCategory.HEAVY, False, 5) == 20
