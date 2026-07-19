@@ -1,4 +1,11 @@
-from rules import ability_modifier, proficiency_bonus, skill_bonus, saving_throw_bonus, passive_score
+from rules import(
+    ability_modifier, 
+    proficiency_bonus, 
+    skill_bonus, 
+    saving_throw_bonus, 
+    passive_score,
+    initiative_bonus,
+) 
 
 
 
@@ -19,3 +26,7 @@ def test_saving_throw_bonus():
 
 def test_passive_score():
     assert passive_score(2) == 12
+
+def test_initiative_bonus():
+    assert initiative_bonus(3) == 3
+    assert initiative_bonus(3, 2) == 5

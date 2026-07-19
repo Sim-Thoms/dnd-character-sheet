@@ -18,3 +18,6 @@ def saving_throw_bonus(score: int, prof_bonus: int, proficient: bool = False):
 
 def passive_score(skill_bonus: int):
     return 10 + skill_bonus
+
+def initiative_bonus(dex_modifier: int, additional_bonus: int = 0):
+    return dex_modifier + additional_bonus
