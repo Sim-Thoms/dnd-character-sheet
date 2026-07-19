@@ -1,4 +1,4 @@
-from rules import ability_modifier, proficiency_bonus, skill_bonus
+from rules import ability_modifier, proficiency_bonus, skill_bonus, saving_throw_bonus
 
 
 
@@ -12,4 +12,9 @@ def test_skill_bonus():
     assert skill_bonus(12, 2) == 1
     assert skill_bonus(12, 2, True) == 3
     assert skill_bonus(12, 2, True, True) == 5
+
+def test_saving_throw_bonus():
+    assert saving_throw_bonus(12, 2) == 1
+    assert saving_throw_bonus(12, 2, True) == 3
+
 

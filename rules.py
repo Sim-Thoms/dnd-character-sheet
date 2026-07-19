@@ -11,3 +11,7 @@ def skill_bonus(score: int, prof_bonus: int, proficient: bool = False, expertise
         return ability_modifier(score) + prof_bonus
     return ability_modifier(score)
  
+def saving_throw_bonus(score: int, prof_bonus: int, proficient: bool = False):
+    if proficient:
+        return ability_modifier(score) + prof_bonus
+    return ability_modifier(score)
