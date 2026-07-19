@@ -1,4 +1,4 @@
-from rules import ability_modifier, proficiency_bonus, skill_bonus, saving_throw_bonus
+from rules import ability_modifier, proficiency_bonus, skill_bonus, saving_throw_bonus, passive_score
 
 
 
@@ -17,4 +17,5 @@ def test_saving_throw_bonus():
     assert saving_throw_bonus(12, 2) == 1
     assert saving_throw_bonus(12, 2, True) == 3
 
-
+def test_passive_score():
+    assert passive_score(2) == 12
