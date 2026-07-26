@@ -24,6 +24,38 @@ combat:
   initiative: 
     additional_bonus: 0 # Whole number values
   speed: 0 # Whole number, in feet. e.g. 30 for most races, 25 for Dwarves/Gnomes/Halflings
-  hp:
+  hp: # current_hp, temp_hp and current_hit_dice are handled live in the display
     maximum_hp: 0 # Whole number values. Constitution modifier + hit dice (maximum value at level 1). Roll a hit dice and add the value for every level up.
-    hit_dice: "" # e.g. d10 for Ranger
+    hit_dice: "" # e.g. d10 for Ranger 
+
+equipment_and_currency:
+  equipment:
+    weapons: 
+      - name: "" # e.g. Bow
+        quantity: 0 # e.g. 1
+        damage_dice: "" # e.g. 1d8
+        damage_type: "" # e.g. Piercing
+        proficient: # Valid: true, false
+        equipped: # Valid: true, false
+        range: 
+          normal: 0 # e.g. 150
+          long: 0 # e.g. 600
+    armor: 
+      - name: # e.g. Leather Armor
+        proficient: # Valid: true, false
+        equipped: # Valid: true, false
+    tools: 
+      - name: "" # e.g. Herbalism Kit
+        proficient: # Valid: true, false
+        description: "" # e.g. This kit contains a variety of instruments such as...
+    other: 
+      - name: "" # e.g. Weird Necklace
+        quantity: 0 # e.g. 1
+        description: "" # e.g. Weird looking necklace that emits a dim light
+  currency: # Whole number values
+    copper: 0 # 10cp = 1sp
+    silver: 0 # 5sp = 1ep
+    electrum: 0 # 2ep = 1gp
+    gold: 0 # 10gp = 1pp
+    platinum: 0  
+
