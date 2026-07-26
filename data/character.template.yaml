@@ -15,4 +15,15 @@ abilities:
     charisma: 0  
   saving_throw_proficiencies: [] # 2 required. Valid: strength, dexterity, constitution, intelligence, wisdom, charisma
 
-
+combat:
+  armor_class: 
+    armor_base: 0 # Whole number values. e.g. 11 for Leather Armor
+    armor: "" # 1 required. Valid: none, light, medium, heavy
+    shield: # Valid: true, false
+    additional_bonus: 0 # Whole number values
+  initiative: 
+    additional_bonus: 0 # Whole number values
+  speed: 0 # Whole number, in feet. e.g. 30 for most races, 25 for Dwarves/Gnomes/Halflings
+  hp:
+    maximum_hp: 0 # Whole number values. Constitution modifier + hit dice (maximum value at level 1). Roll a hit dice and add the value for every level up.
+    hit_dice: "" # e.g. d10 for Ranger
