@@ -31,11 +31,16 @@ combat:
 equipment_and_currency:
   equipment:
     weapons: 
+      - name: "Unarmed Strike"
+        damage_dice: "1" # No dice roll needed. It deals 1dmg by default
+        proficient: true
+        ability_used: "strength"
       - name: "" # e.g. Bow
         quantity: 0 # e.g. 1
         damage_dice: "" # e.g. 1d8
         damage_type: "" # e.g. Piercing
         proficient: # Valid: true, false
+        ability_used: # 1 required. Valid: strength, dexterity, constitution, intelligence, wisdom, charisma
         equipped: # Valid: true, false
         range: 
           normal: 0 # e.g. 150
