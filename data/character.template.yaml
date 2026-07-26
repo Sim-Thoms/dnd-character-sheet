@@ -1,0 +1,18 @@
+identity:
+  name: "" # character's name
+  race: "" # e.g. Mothkin
+  level: 0 # 1-20
+  class: "" # e.g. Ranger
+  subclass: "" # e.g. Swarmkeeper
+
+abilities: 
+  ability_scores: # Whole number values from 1 to 20 (inclusive)
+    strength: 0     
+    dexterity: 0      
+    constitution: 0 
+    intelligence: 0 
+    wisdom: 0       
+    charisma: 0  
+  saving_throw_proficiencies: [] # 2 required. Valid: strength, dexterity, constitution, intelligence, wisdom, charisma
+
+
