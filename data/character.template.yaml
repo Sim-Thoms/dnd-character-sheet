@@ -73,3 +73,7 @@ equipment_and_currency:
     gold: 0 # 10gp = 1pp
     platinum: 0  
 
+features_and_traits:
+  - name: "" # e.g. Archery
+    label: "" # 1 required. Valid: feature, trait
+    description: "" # e.g. You gain a +2 bonus to attack rolls you make with ranged weapons.
