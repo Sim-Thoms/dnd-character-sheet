@@ -7,13 +7,16 @@ identity:
 
 abilities: 
   ability_scores: # Whole number values from 1 to 20 (inclusive)
-    strength: 0     
-    dexterity: 0      
-    constitution: 0 
-    intelligence: 0 
-    wisdom: 0       
+    strength: 0
+    dexterity: 0    
+    constitution: 0  
+    intelligence: 0  
+    wisdom: 0        
     charisma: 0  
   saving_throw_proficiencies: [] # 2 required. Valid: strength, dexterity, constitution, intelligence, wisdom, charisma
+  skills: # Skills not listed here default to "untrained" 
+    stealth: proficient # Placeholder 
+    perception: expertise # Placeholder
 
 combat:
   armor_class: 
@@ -33,8 +36,12 @@ equipment_and_currency:
     weapons: 
       - name: "Unarmed Strike"
         damage_dice: "1" # No dice roll needed. It deals 1dmg by default
+        damage_type: "Blunt"
         proficient: true
         ability_used: "strength"
+        equipped: true
+        damage_bonus: 0 # Whole number values
+        attack_roll_bonus: 0 # Whole number values
       - name: "" # e.g. Bow
         quantity: 0 # e.g. 1
         damage_dice: "" # e.g. 1d8
@@ -45,6 +52,8 @@ equipment_and_currency:
         range: 
           normal: 0 # e.g. 150
           long: 0 # e.g. 600
+        damage_bonus: 0 # Whole number values
+        attack_roll_bonus: 0 # Whole number values
     armor: 
       - name: # e.g. Leather Armor
         proficient: # Valid: true, false
