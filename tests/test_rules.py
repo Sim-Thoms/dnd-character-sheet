@@ -6,6 +6,8 @@ from rules import(
     passive_score,
     initiative_bonus,
     armor_class,
+    spell_save_dc,
+    spell_attack_bonus,
     ArmorCategory,
 ) 
 
@@ -39,3 +41,9 @@ def test_armor_class():
     assert armor_class(12, 4, ArmorCategory.MEDIUM, True, 1) == 17
     assert armor_class(12, 1, ArmorCategory.MEDIUM, True, 1) == 16
     assert armor_class(15, 4, ArmorCategory.HEAVY, False, 5) == 20
+
+def test_spell_save_dc():
+    assert spell_save_dc(2, 3) == 13
+
+def test_spell_attack_bonus():
+    assert spell_attack_bonus(2, 3) == 5

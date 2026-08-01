@@ -77,3 +77,21 @@ features_and_traits:
   - name: "" # e.g. Archery
     label: "" # 1 required. Valid: feature, trait
     description: "" # e.g. You gain a +2 bonus to attack rolls you make with ranged weapons.
+
+spells:
+  spellcasting_ability: "" # 1 required. Valid: strength, dexterity, constitution, intelligence, wisdom, charisma
+  spell_slots: # Whole number values representing how many spell slots for a giving level the character has
+    level_1: 0
+    level_2: 0
+    level_3: 0
+    level_4: 0
+    level_5: 0
+    level_6: 0
+    level_7: 0
+    level_8: 0
+    level_9: 0
+  spells:
+    - name: ""
+      level: 0 # 0 = Cantrip
+      prepared: false 
+      description: "" # Practical notes on what this spell does — range, damage, effect — written for quick reference, not the full official text
