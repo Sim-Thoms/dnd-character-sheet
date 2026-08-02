@@ -1,0 +1,98 @@
+identity:
+  name: "Mossy Endoxy"
+  race: "Mothkin"
+  level: 3
+  class: "Ranger" 
+  subclass: "Swarmkeeper"
+
+abilities: 
+  ability_scores: 
+    strength: 10
+    dexterity: 17    
+    constitution: 13  
+    intelligence: 8 
+    wisdom: 15        
+    charisma: 10  
+  saving_throw_proficiencies: [] # 2 required. Valid: strength, dexterity, constitution, intelligence, wisdom, charisma
+  skills: 
+    perception: expertise 
+    stealth: proficient
+    insight: proficient
+
+combat:
+  armor_class: 
+    armor_base: 0 # Whole number values. e.g. 11 for Leather Armor
+    armor: "" # 1 required. Valid: none, light, medium, heavy
+    shield: # Valid: true, false
+    additional_bonus: 0 # Whole number values
+  initiative: 
+    additional_bonus: 0 # Whole number values
+  speed: 0 # Whole number, in feet. e.g. 30 for most races, 25 for Dwarves/Gnomes/Halflings
+  hp: # current_hp, temp_hp and current_hit_dice are handled live in the display
+    maximum_hp: 0 # Whole number values. Constitution modifier + hit dice (maximum value at level 1). Roll a hit dice and add the value for every level up.
+    hit_dice: "" # e.g. d10 for Ranger 
+
+equipment_and_currency:
+  equipment:
+    weapons: 
+      - name: "Unarmed Strike"
+        damage_dice: "1" # No dice roll needed. It deals 1dmg by default
+        damage_type: "Blunt"
+        proficient: true
+        ability_used: "strength"
+        equipped: true
+        damage_bonus: 0 # Whole number values
+        attack_roll_bonus: 0 # Whole number values
+      - name: "" # e.g. Bow
+        quantity: 0 # e.g. 1
+        damage_dice: "" # e.g. 1d8
+        damage_type: "" # e.g. Piercing
+        proficient: # Valid: true, false
+        ability_used: # 1 required. Valid: strength, dexterity, constitution, intelligence, wisdom, charisma
+        equipped: # Valid: true, false
+        range: 
+          normal: 0 # e.g. 150
+          long: 0 # e.g. 600
+        damage_bonus: 0 # Whole number values
+        attack_roll_bonus: 0 # Whole number values
+    armor: 
+      - name: # e.g. Leather Armor
+        proficient: # Valid: true, false
+        equipped: # Valid: true, false
+    tools: 
+      - name: "" # e.g. Herbalism Kit
+        proficient: # Valid: true, false
+        description: "" # e.g. This kit contains a variety of instruments such as...
+    other: 
+      - name: "" # e.g. Weird Necklace
+        quantity: 0 # e.g. 1
+        description: "" # e.g. Weird looking necklace that emits a dim light
+  currency: # Whole number values
+    copper: 0 # 10cp = 1sp
+    silver: 0 # 5sp = 1ep
+    electrum: 0 # 2ep = 1gp
+    gold: 0 # 10gp = 1pp
+    platinum: 0  
+
+features_and_traits:
+  - name: "" # e.g. Archery
+    label: "" # 1 required. Valid: feature, trait
+    description: "" # e.g. You gain a +2 bonus to attack rolls you make with ranged weapons.
+
+spells:
+  spellcasting_ability: "" # 1 required. Valid: strength, dexterity, constitution, intelligence, wisdom, charisma
+  spell_slots: # Whole number values representing how many spell slots for a giving level the character has
+    level_1: 0
+    level_2: 0
+    level_3: 0
+    level_4: 0
+    level_5: 0
+    level_6: 0
+    level_7: 0
+    level_8: 0
+    level_9: 0
+  spells:
+    - name: ""
+      level: 0 # 0 = Cantrip
+      prepared: false 
+      description: "" # Practical notes on what this spell does — range, damage, effect — written for quick reference, not the full official text
