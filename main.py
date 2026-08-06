@@ -15,6 +15,7 @@ from rules import(
 from builder import(
     get_ability_modifiers,
     get_skill_bonuses, 
+    get_saving_throw_bonuses
 )
 
 
@@ -29,7 +30,11 @@ with open(f"data/{YAML_FILE}") as character_sheet:
 
 modifiers_dict = get_ability_modifiers(cs)
 skill_bonus_dict = get_skill_bonuses(cs)
+saving_throw_dict = get_saving_throw_bonuses(cs)
 
 
 
-pprint.pprint(get_skill_bonuses(cs))
+
+
+
+pprint.pprint(get_saving_throw_bonuses(cs))

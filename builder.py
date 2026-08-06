@@ -41,7 +41,7 @@ def get_ability_modifiers(character: dict) -> dict:
     return {ability: ability_modifier(score) for ability, score in scores.items()}
 
 def get_skill_bonuses(character: dict) -> dict:
-    bonus_list = {}
+    bonus_dict = {}
     skills = character["abilities"]["skills"]
     scores = character["abilities"]["ability_scores"]
     prof_bonus = proficiency_bonus(character["identity"]["level"]) 
@@ -52,5 +52,19 @@ def get_skill_bonuses(character: dict) -> dict:
             expertise = True
         elif skills.get(skill) == "proficient":
             proficient = True
-        bonus_list[skill] = skill_bonus(score, prof_bonus, proficient, expertise)
-    return bonus_list
+        bonus_dict[skill] = skill_bonus(score, prof_bonus, proficient, expertise)
+    return 
+
+def get_saving_throw_bonuses(character: dict) -> dict:
+    saving_throw_dict = {}
+    scores = character["abilities"]["ability_scores"]
+    saving_throw_proficiencies = character["abilities"]["saving_throw_proficiencies"]
+    prof_bonus = proficiency_bonus(character["identity"]["level"])
+    for ability, score in scores.items():
+        proficient = False
+        if ability in saving_throw_proficiencies:
+            proficient = True
+        saving_throw_dict[ability] = saving_throw_bonus(score, prof_bonus, proficient)
+    return saving_throw_dict
+
+
