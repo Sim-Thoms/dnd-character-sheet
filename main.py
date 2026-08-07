@@ -1,11 +1,16 @@
 import yaml
 import pprint
+from rules import(
+    proficiency_bonus
+)
 from builder import(
     get_ability_modifiers,
     get_skill_bonuses, 
     get_saving_throw_bonuses,
     get_ac,
-    get_initiative_bonus
+    get_initiative_bonus,
+    get_spell_save_dc,
+    get_spell_attack_bonus
 )
 
 
@@ -24,8 +29,19 @@ saving_throw_dict = get_saving_throw_bonuses(cs)
 
 
 dex_modifier = modifiers_dict["dexterity"]
-armor_class = get_ac(cs, dex_modifier)
-initiative_bonus = get_initiative_bonus(cs, dex_modifier)
+armor_class_value = get_ac(cs, dex_modifier)
+initiative_bonus_value = get_initiative_bonus(cs, dex_modifier)
+
+level = cs["identity"]["level"]
+proficiency_bonus_value = proficiency_bonus(level)
+spell_ability = cs["spells"]["spellcasting_ability"]
+spell_ability_mod = modifiers_dict[spell_ability]
+spell_save_dc_value = get_spell_save_dc(proficiency_bonus_value, spell_ability_mod)
+spell_attack_bonus_value = get_spell_attack_bonus(proficiency_bonus_value, spell_ability_mod)
 
 
-print(armor_class, initiative_bonus)
+
+
+
+
+print(spell_save_dc_value, spell_attack_bonus_value)

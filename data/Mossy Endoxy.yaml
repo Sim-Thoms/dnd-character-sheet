@@ -80,7 +80,7 @@ features_and_traits:
     description: "" # e.g. You gain a +2 bonus to attack rolls you make with ranged weapons.
 
 spells:
-  spellcasting_ability: "" # 1 required. Valid: strength, dexterity, constitution, intelligence, wisdom, charisma
+  spellcasting_ability: "wisdom" 
   spell_slots: # Whole number values representing how many spell slots for a giving level the character has
     level_1: 0
     level_2: 0

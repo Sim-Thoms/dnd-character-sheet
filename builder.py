@@ -87,3 +87,9 @@ def get_ac(character: dict, dex_modifier: int) -> int:
 def get_initiative_bonus(character: dict, dex_modifier: int) -> int:
     additional_bonus = character["combat"]["initiative"]["additional_bonus"]
     return initiative_bonus(dex_modifier, additional_bonus)
+
+def get_spell_save_dc(proficiency_bonus_value: int, spell_ability_mod: int) -> int:
+    return spell_save_dc(spell_ability_mod, proficiency_bonus_value)
+
+def get_spell_attack_bonus(proficiency_bonus_value: int, spell_ability_mod: int) -> int:
+    return spell_attack_bonus(spell_ability_mod, proficiency_bonus_value)
