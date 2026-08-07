@@ -1,21 +1,11 @@
 import yaml
 import pprint
-from rules import(
-    ability_modifier, 
-    proficiency_bonus, 
-    skill_bonus, 
-    saving_throw_bonus, 
-    passive_score,
-    initiative_bonus,
-    armor_class,
-    spell_save_dc,
-    spell_attack_bonus,
-    ArmorCategory,
-) 
 from builder import(
     get_ability_modifiers,
     get_skill_bonuses, 
-    get_saving_throw_bonuses
+    get_saving_throw_bonuses,
+    get_ac,
+    get_initiative_bonus
 )
 
 
@@ -33,8 +23,9 @@ skill_bonus_dict = get_skill_bonuses(cs)
 saving_throw_dict = get_saving_throw_bonuses(cs)
 
 
+dex_modifier = modifiers_dict["dexterity"]
+armor_class = get_ac(cs, dex_modifier)
+initiative_bonus = get_initiative_bonus(cs, dex_modifier)
 
 
-
-
-pprint.pprint(get_saving_throw_bonuses(cs))
+print(armor_class, initiative_bonus)

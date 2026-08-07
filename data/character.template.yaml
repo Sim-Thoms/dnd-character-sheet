@@ -21,7 +21,7 @@ abilities:
 combat:
   armor_class: 
     armor_base: 0 # Whole number values. e.g. 11 for Leather Armor
-    armor: "" # 1 required. Valid: none, light, medium, heavy
+    armor_category: "" # 1 required. Valid: none, light, medium, heavy
     shield: # Valid: true, false
     additional_bonus: 0 # Whole number values
   initiative: 

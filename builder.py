@@ -67,4 +67,23 @@ def get_saving_throw_bonuses(character: dict) -> dict:
         saving_throw_dict[ability] = saving_throw_bonus(score, prof_bonus, proficient)
     return saving_throw_dict
 
+def get_ac(character: dict, dex_modifier: int) -> int:
+    armor_base = character["combat"]["armor_class"]["armor_base"]
+    shield = character["combat"]["armor_class"]["shield"]
+    additional_bonus = character["combat"]["armor_class"]["additional_bonus"]
 
+    armor = character["combat"]["armor_class"]["armor_category"]
+    if armor == "none":
+        armor_category = ArmorCategory.NONE
+    elif armor == "light":
+        armor_category = ArmorCategory.LIGHT
+    elif armor == "medium": 
+        armor_category = ArmorCategory.MEDIUM
+    elif armor == "heavy":
+        armor_category = ArmorCategory.HEAVY
+
+    return armor_class(armor_base, dex_modifier, armor_category, shield, additional_bonus)
+
+def get_initiative_bonus(character: dict, dex_modifier: int) -> int:
+    additional_bonus = character["combat"]["initiative"]["additional_bonus"]
+    return initiative_bonus(dex_modifier, additional_bonus)
