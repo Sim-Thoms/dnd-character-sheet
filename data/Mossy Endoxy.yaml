@@ -5,7 +5,7 @@ identity:
   class: "Ranger" 
   subclass: "Swarmkeeper"
 
-abilities: 
+ability: 
   ability_scores: 
     strength: 10
     dexterity: 17    
@@ -13,7 +13,9 @@ abilities:
     intelligence: 8 
     wisdom: 15        
     charisma: 10  
-  saving_throw_proficiencies: [] # 2 required. Valid: strength, dexterity, constitution, intelligence, wisdom, charisma
+  saving_throw_proficiencies: 
+    - "strength"
+    - "dexterity"
   skills: 
     perception: expertise 
     stealth: proficient
@@ -21,19 +23,16 @@ abilities:
 
 combat:
   armor_class: 
-    armor_base: 11 
-    armor_category: "light" 
-    shield: false
     additional_bonus: 0 
   initiative: 
-    additional_bonus: 0 # Whole number values
-  speed: 0 # Whole number, in feet. e.g. 30 for most races, 25 for Dwarves/Gnomes/Halflings
-  hp: # current_hp, temp_hp and current_hit_dice are handled live in the display
-    maximum_hp: 0 # Whole number values. Constitution modifier + hit dice (maximum value at level 1). Roll a hit dice and add the value for every level up.
-    hit_dice: "" # e.g. d10 for Ranger 
+    additional_bonus: 0 
+  speed: 25 
+  hp: 
+    maximum_hp: 21 
+    hit_dice: "d10" 
 
-equipment_and_currency:
-  equipment:
+equipment_and_currency: 
+  equipment: 
     weapons: 
       - name: "Unarmed Strike"
         damage_dice: "1" # No dice roll needed. It deals 1dmg by default
@@ -41,24 +40,27 @@ equipment_and_currency:
         proficient: true
         ability_used: "strength"
         equipped: true
-        damage_bonus: 0 # Whole number values
-        attack_roll_bonus: 0 # Whole number values
-      - name: "" # e.g. Bow
-        quantity: 0 # e.g. 1
-        damage_dice: "" # e.g. 1d8
-        damage_type: "" # e.g. Piercing
-        proficient: # Valid: true, false
+        damage_bonus: 0 
+        attack_roll_bonus: 0 
+      - name: "Long Bow"
+        quantity: 1
+        damage_dice: "1d8" 
+        damage_type: "Piercing" 
+        proficient: true
         ability_used: # 1 required. Valid: strength, dexterity, constitution, intelligence, wisdom, charisma
-        equipped: # Valid: true, false
+        equipped: true
         range: 
-          normal: 0 # e.g. 150
-          long: 0 # e.g. 600
+          normal: 150
+          long: 600
         damage_bonus: 0 # Whole number values
         attack_roll_bonus: 0 # Whole number values
     armor: 
       - name: "Leather Armor"
         proficient: true
         equipped: true
+        armor_base: 11 
+        armor_category: "light" 
+    shield: false 
     tools: 
       - name: "" # e.g. Herbalism Kit
         proficient: # Valid: true, false
@@ -67,7 +69,7 @@ equipment_and_currency:
       - name: "" # e.g. Weird Necklace
         quantity: 0 # e.g. 1
         description: "" # e.g. Weird looking necklace that emits a dim light
-  currency: # Whole number values
+  currency: 
     copper: 0 # 10cp = 1sp
     silver: 0 # 5sp = 1ep
     electrum: 0 # 2ep = 1gp
@@ -79,7 +81,7 @@ features_and_traits:
     label: "" # 1 required. Valid: feature, trait
     description: "" # e.g. You gain a +2 bonus to attack rolls you make with ranged weapons.
 
-spells:
+spell:
   spellcasting_ability: "wisdom" 
   spell_slots: # Whole number values representing how many spell slots for a giving level the character has
     level_1: 0
@@ -91,7 +93,7 @@ spells:
     level_7: 0
     level_8: 0
     level_9: 0
-  spells:
+  spell_list:
     - name: ""
       level: 0 # 0 = Cantrip
       prepared: false 
