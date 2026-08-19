@@ -1,7 +1,7 @@
 identity:
   name: "Mossy Endoxy"
   race: "Mothkin"
-  level: 3
+  level: 4
   class: "Ranger" 
   subclass: "Swarmkeeper"
 
@@ -9,9 +9,9 @@ ability:
   ability_scores: 
     strength: 10
     dexterity: 17    
-    constitution: 13  
+    constitution: 14  
     intelligence: 8 
-    wisdom: 15        
+    wisdom: 16        
     charisma: 10  
   saving_throw_proficiencies: 
     - "strength"
@@ -28,8 +28,12 @@ combat:
     additional_bonus: 0 
   speed: 25 
   hp: 
-    maximum_hp: 21 
     hit_dice: "d10" 
+    level_hp:
+      - 10
+      - 6
+      - 2
+      - 4
 
 equipment_and_currency: 
   equipment: 

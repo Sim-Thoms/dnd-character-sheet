@@ -115,6 +115,14 @@ def get_spell_save_dc(proficiency_bonus_value: int, spell_ability_mod: int) -> i
 def get_spell_attack_bonus(proficiency_bonus_value: int, spell_ability_mod: int) -> int:
     return spell_attack_bonus(spell_ability_mod, proficiency_bonus_value)
 
+def get_maximum_hp(character: dict) -> int:
+    level = character["identity"]["level"]
+    level_hp = character["combat"]["hp"]["level_hp"]
+    total_level_hp = 0
+    for hp in level_hp:
+        total_level_hp += hp
+    return total_level_hp + (level * ability_modifier(character["ability"]["ability_scores"]["constitution"]))
+
 def assemble_character_data(character: dict) -> dict:
     character_data = {}
 
@@ -131,7 +139,7 @@ def assemble_character_data(character: dict) -> dict:
     # Combat
     character_data["combat"] = {}
     character_data["combat"]["hp"] = {
-        "maximum_hp": character["combat"]["hp"]["maximum_hp"],
+        "maximum_hp": get_maximum_hp(character),
         "hit_dice": character["combat"]["hp"]["hit_dice"],
     }
     character_data["combat"]["speed"] = character["combat"]["speed"]

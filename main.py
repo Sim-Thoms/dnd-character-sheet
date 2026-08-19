@@ -14,4 +14,4 @@ with open(f"data/{YAML_FILE}") as character_sheet:
 character_data = assemble_character_data(cs)
 
 
-
+print(character_data)

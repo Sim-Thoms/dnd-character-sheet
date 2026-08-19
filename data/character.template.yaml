@@ -25,8 +25,9 @@ combat:
     additional_bonus: 0 # Whole number values
   speed: 0 # Whole number, in feet. e.g. 30 for most races, 25 for Dwarves/Gnomes/Halflings
   hp: # current_hp, temp_hp and current_hit_dice are handled live in the display
-    maximum_hp: 0 # Whole number values. Constitution modifier + hit dice (maximum value at level 1). Roll a hit dice and add the value for every level up.
     hit_dice: "" # e.g. d10 for Ranger 
+    level_hp: # Whole number values. Roll a hit dice and add the value for every level up (maximum value of hit dice for level 1).
+      - 0   
 
 equipment_and_currency:
   equipment:
