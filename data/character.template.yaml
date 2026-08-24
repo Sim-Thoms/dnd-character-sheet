@@ -5,7 +5,7 @@ identity:
   class: "" # e.g. Ranger
   subclass: "" # e.g. Swarmkeeper
 
-abilities: 
+ability: 
   ability_scores: # Whole number values from 1 to 20 (inclusive)
     strength: 0
     dexterity: 0    
@@ -20,16 +20,14 @@ abilities:
 
 combat:
   armor_class: 
-    armor_base: 0 # Whole number values. e.g. 11 for Leather Armor
-    armor: "" # 1 required. Valid: none, light, medium, heavy
-    shield: # Valid: true, false
     additional_bonus: 0 # Whole number values
   initiative: 
     additional_bonus: 0 # Whole number values
   speed: 0 # Whole number, in feet. e.g. 30 for most races, 25 for Dwarves/Gnomes/Halflings
   hp: # current_hp, temp_hp and current_hit_dice are handled live in the display
-    maximum_hp: 0 # Whole number values. Constitution modifier + hit dice (maximum value at level 1). Roll a hit dice and add the value for every level up.
     hit_dice: "" # e.g. d10 for Ranger 
+    level_hp: # Whole number values. Roll a hit dice and add the value for every level up (maximum value of hit dice for level 1).
+      - 0   
 
 equipment_and_currency:
   equipment:
@@ -58,6 +56,9 @@ equipment_and_currency:
       - name: # e.g. Leather Armor
         proficient: # Valid: true, false
         equipped: # Valid: true, false
+        armor_base: 0 # Whole number values. e.g. 11 for Leather Armor
+        armor_category: "" # 1 required. Valid: none, light, medium, heavy
+    shield: # Valid: true, false
     tools: 
       - name: "" # e.g. Herbalism Kit
         proficient: # Valid: true, false
@@ -78,7 +79,7 @@ features_and_traits:
     label: "" # 1 required. Valid: feature, trait
     description: "" # e.g. You gain a +2 bonus to attack rolls you make with ranged weapons.
 
-spells:
+spell:
   spellcasting_ability: "" # 1 required. Valid: strength, dexterity, constitution, intelligence, wisdom, charisma
   spell_slots: # Whole number values representing how many spell slots for a giving level the character has
     level_1: 0
@@ -90,8 +91,8 @@ spells:
     level_7: 0
     level_8: 0
     level_9: 0
-  spells:
+  spell_list:
     - name: ""
       level: 0 # 0 = Cantrip
-      prepared: false 
+      prepared: false # Valid: true, false
       description: "" # Practical notes on what this spell does — range, damage, effect — written for quick reference, not the full official text
