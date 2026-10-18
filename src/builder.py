@@ -1,53 +1,47 @@
-from rules import(
-    ability_modifier, 
-    proficiency_bonus, 
-    skill_bonus, 
+from enums import Ability, ArmorCategory, Proficiency, Skill
+from schematic import AbilityScores, Character
+from rules import (
+    ability_modifier,
+    proficiency_bonus,
+    skill_bonus,
     saving_throw_bonus,
     passive_score,
     initiative_bonus,
     armor_class,
     spell_save_dc,
     spell_attack_bonus,
-    ArmorCategory,
 )
 
+# Which ability each skill is rolled against. Keyed by the Skill enum so the
+# list of skills lives in exactly one place.
 SKILL_ABILITIES = {
-    "acrobatics": "dexterity",
-    "animal handling": "wisdom",
-    "arcana": "intelligence",
-    "athletics": "strength",
-    "deception": "charisma",
-    "history": "intelligence",
-    "insight": "wisdom",
-    "intimidation": "charisma",
-    "investigation": "intelligence",
-    "medicine": "wisdom",
-    "nature": "intelligence",
-    "perception": "wisdom", 
-    "performance": "charisma",
-    "persuasion": "charisma",
-    "religion": "intelligence",
-    "sleight of hand": "dexterity",   
-    "stealth": "dexterity",
-    "survival": "wisdom"
+    Skill.ACROBATICS: Ability.DEXTERITY,
+    Skill.ANIMAL_HANDLING: Ability.WISDOM,
+    Skill.ARCANA: Ability.INTELLIGENCE,
+    Skill.ATHLETICS: Ability.STRENGTH,
+    Skill.DECEPTION: Ability.CHARISMA,
+    Skill.HISTORY: Ability.INTELLIGENCE,
+    Skill.INSIGHT: Ability.WISDOM,
+    Skill.INTIMIDATION: Ability.CHARISMA,
+    Skill.INVESTIGATION: Ability.INTELLIGENCE,
+    Skill.MEDICINE: Ability.WISDOM,
+    Skill.NATURE: Ability.INTELLIGENCE,
+    Skill.PERCEPTION: Ability.WISDOM,
+    Skill.PERFORMANCE: Ability.CHARISMA,
+    Skill.PERSUASION: Ability.CHARISMA,
+    Skill.RELIGION: Ability.INTELLIGENCE,
+    Skill.SLEIGHT_OF_HAND: Ability.DEXTERITY,
+    Skill.STEALTH: Ability.DEXTERITY,
+    Skill.SURVIVAL: Ability.WISDOM,
 }
 
-ABILITIES = [
-    "strength",
-    "dexterity",   
-    "constitution",  
-    "intelligence",
-    "wisdom",        
-    "charisma",
-]
-
 ABILITY_ABBREVIATIONS = {
-    "strength": "Str",
-    "dexterity": "Dex",
-    "constitution": "Con",
-    "intelligence": "Int",
-    "wisdom": "Wis",
-    "charisma": "Cha",
+    Ability.STRENGTH: "Str",
+    Ability.DEXTERITY: "Dex",
+    Ability.CONSTITUTION: "Con",
+    Ability.INTELLIGENCE: "Int",
+    Ability.WISDOM: "Wis",
+    Ability.CHARISMA: "Cha",
 }
 
 DEFAULT_ACCENT_COLOR = "#5f5f5f"  # fallback for any class not listed below
@@ -56,226 +50,243 @@ CLASS_ACCENT_COLORS = {
 }
 
 
-
-def get_ability_modifiers(character: dict) -> dict:
+def get_ability_modifiers(scores: AbilityScores) -> dict[str, int]:
     """
     Retrieve the ability modifiers for each ability of the character.
 
-    param:: character: A dictionary containing the character's data.
-    return:: A dictionary containing the ability modifiers for each ability, calculated based on the character's ability scores.
+    param:: scores: The character's six ability scores.
+    return:: A dictionary mapping each ability name to its modifier.
     """
-    scores = character["ability"]["ability_scores"]
-    return {ability: ability_modifier(score) for ability, score in scores.items()}
+    return {
+        ability.value: ability_modifier(getattr(scores, ability.value))
+        for ability in Ability
+    }
 
-def get_skill_bonuses(character: dict) -> dict:
+
+def get_skill_bonuses(character: Character) -> dict[str, dict]:
     """
     Retrieve the skill bonuses for each skill of the character.
-    
-    param:: character: A dictionary containing the character's data.
-    return:: A dictionary containing the skill bonuses for each skill, calculated based on the character's ability scores, proficiency bonus, and skill proficiencies.
+
+    param:: character: The validated character.
+    return:: A dictionary mapping each skill name to its bonus, proficiency
+             state and passive score.
     """
-    bonus_dict = {}
-    skills = character["ability"]["skills"]
-    scores = character["ability"]["ability_scores"]
-    prof_bonus = proficiency_bonus(character["identity"]["level"]) 
-    for skill in SKILL_ABILITIES:
-        score = scores.get(SKILL_ABILITIES.get(skill))
-        expertise, proficient = False, False
-        if skills.get(skill) == "expertise":
-            expertise = True
-        elif skills.get(skill) == "proficient":
-            proficient = True
+    scores = character.abilities_and_skills.ability_scores
+    proficiencies = character.abilities_and_skills.skill_proficiencies
+    prof_bonus = proficiency_bonus(character.identity.level)
+
+    bonuses = {}
+    for skill, ability in SKILL_ABILITIES.items():
+        score = getattr(scores, ability.value)
+        level = proficiencies.get(skill)
+        proficient = level == Proficiency.PROFICIENT
+        expertise = level == Proficiency.EXPERTISE
+
         bonus = skill_bonus(score, prof_bonus, proficient, expertise)
-        bonus_dict[skill] = {
+        bonuses[skill.value] = {
             "bonus": bonus,
             "proficient": proficient,
             "expertise": expertise,
             "passive_score": passive_score(bonus),
         }
-    return bonus_dict
+    return bonuses
 
-def get_saving_throw_bonuses(character: dict) -> dict:
+
+def get_saving_throw_bonuses(character: Character) -> dict[str, int]:
     """
     Retrieve the saving throw bonuses for each ability of the character.
 
-    param:: character: A dictionary containing the character's data.
-    return:: A dictionary containing the saving throw bonuses for each ability, calculated based on the character's ability scores, proficiency bonus, and saving throw proficiencies.
+    param:: character: The validated character.
+    return:: A dictionary mapping each ability name to its saving throw bonus.
     """
-    saving_throw_dict = {}
-    scores = character["ability"]["ability_scores"]
-    saving_throw_proficiencies = character["ability"]["saving_throw_proficiencies"]
-    prof_bonus = proficiency_bonus(character["identity"]["level"])
-    for ability, score in scores.items():
-        proficient = False
-        if ability in saving_throw_proficiencies:
-            proficient = True
-        saving_throw_dict[ability] = saving_throw_bonus(score, prof_bonus, proficient)
-    return saving_throw_dict
+    scores = character.abilities_and_skills.ability_scores
+    proficiencies = character.abilities_and_skills.saving_throw_proficiencies
+    prof_bonus = proficiency_bonus(character.identity.level)
 
-def get_armor_class(character: dict, dex_modifier: int) -> int:
+    return {
+        ability.value: saving_throw_bonus(
+            getattr(scores, ability.value),
+            prof_bonus,
+            ability in proficiencies,
+        )
+        for ability in Ability
+    }
+
+
+def get_armor_class(character: Character, dex_modifier: int) -> int:
     """
     Retrieve the armor class for the character.
 
-    param:: character: A dictionary containing the character's data.
-    param:: dex_modifier: The ability modifier for the character's dexterity score.
-    return:: The armor class for the character, calculated based on their armor and dexterity modifier.
+    param:: character: The validated character.
+    param:: dex_modifier: The character's dexterity modifier.
+    return:: The armor class, based on equipped armor, shield and dexterity.
     """
-    armors = character["equipment_and_currency"]["equipment"]["armor"]
-    shield = character["equipment_and_currency"]["equipment"]["shield"]
-    additional_bonus = character["combat"]["armor_class"]["additional_bonus"]
+    equipment = character.equipment_and_currency
 
-    armor_base = 10
-    armor_category = ArmorCategory.NONE
-    for armor in armors:
-        if armor["equipped"] == True:
-            armor_base = armor["armor_base"]
-            if armor["armor_category"] == "none":
-                armor_category = ArmorCategory.NONE
-            elif armor["armor_category"] == "light":
-                armor_category = ArmorCategory.LIGHT
-            elif armor["armor_category"] == "medium":
-                armor_category = ArmorCategory.MEDIUM
-            elif armor["armor_category"] == "heavy":
-                armor_category = ArmorCategory.HEAVY
+    # The schema guarantees at most one equipped armor.
+    equipped = next((armor for armor in equipment.armor if armor.equipped), None)
+    armor_base = equipped.armor_base_value if equipped else 10
+    armor_category = equipped.armor_category if equipped else ArmorCategory.NONE
 
-    return armor_class(armor_base, dex_modifier, armor_category, shield, additional_bonus)
+    return armor_class(
+        armor_base,
+        dex_modifier,
+        armor_category,
+        equipment.shield,
+        character.combat.armor_class_bonus,
+    )
 
-def get_initiative_bonus(character: dict, dex_modifier: int) -> int:
+
+def get_initiative_bonus(character: Character, dex_modifier: int) -> int:
     """
     Retrieve the initiative bonus for the character.
 
-    param:: character: A dictionary containing the character's data.
-    param:: dex_modifier: The ability modifier for the character's dexterity score.
-    return:: The initiative bonus for the character, calculated based on their dexterity modifier and any additional bonuses specified in their combat data.
+    param:: character: The validated character.
+    param:: dex_modifier: The character's dexterity modifier.
+    return:: The initiative bonus.
     """
-    additional_bonus = character["combat"]["initiative"]["additional_bonus"]
-    return initiative_bonus(dex_modifier, additional_bonus)
+    return initiative_bonus(dex_modifier, character.combat.initiative_bonus)
+
 
 def get_spell_save_dc(proficiency_bonus_value: int, spell_ability_mod: int) -> int:
     """
     Retrieve the spell save DC for the character.
-    
-    param:: proficiency_bonus_value: The proficiency bonus value for the character.
-    param:: spell_ability_mod: The ability modifier for the spellcasting ability.
-    return:: The spell save DC for the character.
+
+    param:: proficiency_bonus_value: The character's proficiency bonus.
+    param:: spell_ability_mod: The spellcasting ability modifier.
+    return:: The spell save DC.
     """
     return spell_save_dc(spell_ability_mod, proficiency_bonus_value)
+
 
 def get_spell_attack_bonus(proficiency_bonus_value: int, spell_ability_mod: int) -> int:
     """
     Retrieve the spell attack bonus for the character.
 
-    param:: proficiency_bonus_value: The proficiency bonus value for the character.
-    param:: spell_ability_mod: The ability modifier for the spellcasting ability.
-    return:: The spell attack bonus for the character.
+    param:: proficiency_bonus_value: The character's proficiency bonus.
+    param:: spell_ability_mod: The spellcasting ability modifier.
+    return:: The spell attack bonus.
     """
     return spell_attack_bonus(spell_ability_mod, proficiency_bonus_value)
 
-def get_accent_color(character: dict) -> str:
+
+def get_accent_color(character: Character) -> str:
     """
     Get the accent color for the character based on their class.
-    
-    param:: character: A dictionary containing the character's data.
-    return:: A string representing the accent color for the character's class. If the class is not found in the predefined colors, a default color is returned.
-    """
-    class_name = character["identity"]["class"].lower()
-    return CLASS_ACCENT_COLORS.get(class_name, DEFAULT_ACCENT_COLOR)
 
-def get_weapon_attacks(character: dict) -> list:
+    param:: character: The validated character.
+    return:: The accent color for the class, or a default if unlisted.
     """
-    Retrieve the attacks for each weapon the character is wielding.
+    return CLASS_ACCENT_COLORS.get(character.identity.class_.lower(), DEFAULT_ACCENT_COLOR)
 
-    param:: character: A dictionary containing the character's data.
-    return:: A list of dictionaries, each containing the attack information for a weapon, including name, to-hit bonus, damage dice, damage bonus, damage type, and range.
+
+def get_weapon_attacks(character: Character) -> list[dict]:
     """
-    prof_bonus = proficiency_bonus(character["identity"]["level"])
-    scores = character["ability"]["ability_scores"]
+    Retrieve the attacks for each weapon the character has equipped.
+
+    param:: character: The validated character.
+    return:: A list of attack dictionaries, one per equipped weapon.
+    """
+    scores = character.abilities_and_skills.ability_scores
+    prof_bonus = proficiency_bonus(character.identity.level)
+
     attacks = []
-    for weapon in character["equipment_and_currency"]["equipment"]["weapons"]:
-        if not weapon.get("equipped"):
+    for weapon in character.equipment_and_currency.weapons:
+        if not weapon.equipped:
             continue
-        ability = weapon.get("ability_used")
-        ability_mod = ability_modifier(scores[ability]) if ability in scores else 0
-        to_hit = ability_mod + weapon.get("attack_roll_bonus", 0)
-        if weapon.get("proficient"):
+
+        ability_mod = ability_modifier(getattr(scores, weapon.ability_used.value))
+        to_hit = ability_mod + weapon.attack_roll_bonus
+        if weapon.proficient:
             to_hit += prof_bonus
+
         attacks.append({
-            "name": weapon["name"],
+            "name": weapon.name,
             "to_hit": to_hit,
-            "damage_dice": weapon["damage_dice"],
-            "damage_bonus": ability_mod + weapon.get("damage_bonus", 0),
-            "damage_type": weapon["damage_type"],
-            "range": weapon.get("range"),
+            "damage_dice": weapon.damage_dice,
+            "damage_bonus": ability_mod + weapon.damage_bonus,
+            "damage_type": weapon.damage_type,
+            "range": weapon.range.model_dump() if weapon.range else None,
         })
     return attacks
 
-def get_maximum_hp(character: dict) -> int:
+
+def get_maximum_hp(character: Character) -> int:
     """
     Retrieve the maximum hit points for the character.
 
-    param:: character: A dictionary containing the character's data.
-    return:: The maximum hit points for the character, calculated based on their level, hit dice, and constitution modifier.
+    param:: character: The validated character.
+    return:: Maximum HP, from the per-level rolls plus the constitution
+             modifier applied at every level.
     """
-    level = character["identity"]["level"]
-    level_hp = character["combat"]["hp"]["level_hp"]
-    total_level_hp = 0
-    for hp in level_hp:
-        total_level_hp += hp
-    return total_level_hp + (level * ability_modifier(character["ability"]["ability_scores"]["constitution"]))
+    con_modifier = ability_modifier(
+        character.abilities_and_skills.ability_scores.constitution
+    )
+    return sum(character.combat.hp.level_hp) + (character.identity.level * con_modifier)
 
-def assemble_character_data(character: dict) -> dict:
+
+def assemble_character_data(character: Character) -> dict:
     """
-    Assemble character data into a structured dictionary for rendering in templates.
-    
-    param:: character: A dictionary containing the character's data.
-    return:: A structured dictionary containing the character's data, including identity, abilities, combat stats, equipment, features, and spells. 
+    Assemble character data into a structured dictionary for rendering.
+
+    param:: character: The validated character.
+    return:: A dictionary of raw and computed values for the template.
     """
     character_data = {}
 
-    # Identity
-    character_data["identity"] = character["identity"]
-    character_data["identity"]["accent_color"] = get_accent_color(character)
-
-    proficiency_bonus_value = proficiency_bonus(character_data["identity"]["level"])
-    character_data["identity"]["proficiency_bonus"] = proficiency_bonus_value
-    
+    # Identity — model_dump(by_alias=True) keeps the key as `class`, not `class_`.
+    identity = character.identity.model_dump(by_alias=True)
+    proficiency_bonus_value = proficiency_bonus(character.identity.level)
+    identity["accent_color"] = get_accent_color(character)
+    identity["proficiency_bonus"] = proficiency_bonus_value
+    character_data["identity"] = identity
 
     # Abilities
-    character_data["ability"] = {}
-    character_data["ability"]["ability_scores"] = character["ability"]["ability_scores"]
-    character_data["ability"]["ability_modifiers"] = get_ability_modifiers(character)
-    character_data["ability"]["saving_throw"] = get_saving_throw_bonuses(character)
-    character_data["ability"]["skills"] = get_skill_bonuses(character)
+    ability_modifiers = get_ability_modifiers(character.abilities_and_skills.ability_scores)
+    character_data["ability"] = {
+        "ability_scores": character.abilities_and_skills.ability_scores.model_dump(),
+        "ability_modifiers": ability_modifiers,
+        "saving_throw": get_saving_throw_bonuses(character),
+        "skills": get_skill_bonuses(character),
+    }
 
     # Combat
-    character_data["combat"] = {}
-    character_data["combat"]["hp"] = {
-        "maximum_hp": get_maximum_hp(character),
-        "hit_dice": character["combat"]["hp"]["hit_dice"],
+    dex_modifier = ability_modifiers[Ability.DEXTERITY.value]
+    character_data["combat"] = {
+        "hp": {
+            "maximum_hp": get_maximum_hp(character),
+            "hit_dice": character.combat.hp.hit_dice.value,
+        },
+        "speed": character.combat.speed,
+        "armor_class": get_armor_class(character, dex_modifier),
+        "initiative": get_initiative_bonus(character, dex_modifier),
+        "attacks": get_weapon_attacks(character),
     }
-    character_data["combat"]["speed"] = character["combat"]["speed"]
-    character_data["combat"]["armor_class"] = get_armor_class(
-        character, character_data["ability"]["ability_modifiers"]["dexterity"]
-    )
-    character_data["combat"]["initiative"] = get_initiative_bonus(
-        character, character_data["ability"]["ability_modifiers"]["dexterity"]
-    )
-    character_data["combat"]["attacks"] = get_weapon_attacks(character)
 
     # Equipment & Currency
-    character_data["equipment_and_currency"] = character["equipment_and_currency"]
+    character_data["equipment_and_currency"] = character.equipment_and_currency.model_dump()
 
     # Features & Traits
-    character_data["features_and_traits"] = character["features_and_traits"]
+    character_data["features_and_traits"] = [
+        feature.model_dump() for feature in character.features_and_traits
+    ]
 
-    # Spells
-    spell_ability = character["spell"]["spellcasting_ability"]
-    spell_ability_mod = character_data["ability"]["ability_modifiers"][spell_ability]
-    character_data["spell"] = {}
-    character_data["spell"]["spellcasting_ability"] = spell_ability
-    character_data["spell"]["spell_save_dc_value"] = get_spell_save_dc(proficiency_bonus_value, spell_ability_mod)
-    character_data["spell"]["spell_attack_bonus_value"] = get_spell_attack_bonus(proficiency_bonus_value, spell_ability_mod)
-    character_data["spell"]["spell_slots"] = character["spell"]["spell_slots"]
-    character_data["spell"]["spell_list"] = character["spell"]["spell_list"]
+    # Spells — absent entirely for non-casters.
+    if character.spellcasting is None:
+        character_data["spell"] = None
+    else:
+        spellcasting = character.spellcasting
+        spell_ability_mod = ability_modifiers[spellcasting.spellcasting_ability.value]
+        character_data["spell"] = {
+            "spellcasting_ability": spellcasting.spellcasting_ability.value,
+            "spell_save_dc_value": get_spell_save_dc(
+                proficiency_bonus_value, spell_ability_mod
+            ),
+            "spell_attack_bonus_value": get_spell_attack_bonus(
+                proficiency_bonus_value, spell_ability_mod
+            ),
+            "spell_slots": spellcasting.spell_slots,
+            "spell_list": [spell.model_dump() for spell in spellcasting.spell_list],
+        }
 
     return character_data

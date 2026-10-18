@@ -1,4 +1,5 @@
 from jinja2 import Environment, FileSystemLoader
+from schematic import Character
 from datetime import date
 import yaml
 import re
@@ -13,11 +14,17 @@ from builder import(
 ## Load character data 
 with open("data/raw/Mossy Endoxy.yaml", "r", encoding="utf-8") as f:
     character_yaml = yaml.safe_load(f)
-character_data = assemble_character_data(character_yaml)
+character = Character(**character_yaml)
+character_data = assemble_character_data(character)
+
+def paragraphs(text):
+    """Split a description into paragraphs on blank lines, collapsing wrapped lines."""
+    paras = re.split(r"\n\s*\n", str(text or ""))
+    return [re.sub(r"\s+", " ", p).strip() for p in paras if p.strip()]
 
 ## Render the mobile template
 env = Environment(loader=FileSystemLoader("templates"))
-env.filters["paragraphs"] = lambda text: [p.strip() for p in re.split(r"\n+", text or "") if p.strip()]
+env.filters["paragraphs"] = paragraphs
 template = env.get_template("mobile.html.jinja2")
 html_output = template.render(
     character_data=character_data,

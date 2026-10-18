@@ -164,7 +164,7 @@
   <!-- ================= PAGE 0: OVERVIEW ================= -->
   <section data-page="0">
     <h1>{{ character_data.identity.name }}</h1><span class="badge">Lv {{ character_data.identity.level }}</span>
-    <p class="subtitle">{{ character_data.identity.race }} &ndash; {{ character_data.identity.class }} ({{ character_data.identity.subclass }})</p>
+    <p class="subtitle">{{ character_data.identity.race }} &ndash; {{ character_data.identity.class }}{% if character_data.identity.subclass %} ({{ character_data.identity.subclass }}){% endif %}</p>
 
     <div class="hp-block">
       <button class="hp-btn" id="hp-minus" aria-label="Decrease current hit points">&minus;</button>
@@ -264,7 +264,7 @@
       {% for skill, data in character_data.ability.skills.items() %}
       <div class="row">
         <span class="{{ 'expertise' if data.expertise else ('accent' if data.proficient else '') }}">
-          {{ skill | capitalize }}
+          {{ skill | replace("_", " ") | capitalize }}
           <span class="muted" style="font-size:11px;">{{ ability_abbreviations[skill_abilities[skill]] }}</span>
         </span>
         <span class="mono {{ 'expertise' if data.expertise else ('accent' if data.proficient else '') }}">({{ data.passive_score }}) [{{ "%+d"|format(data.bonus) }}]</span>
@@ -297,7 +297,7 @@
         <span class="mono">({{ "%+d"|format(atk.to_hit) }}) [{{ "%+d"|format(atk.damage_bonus) }}]</span>
       </div>
       <p class="weapon-sub">
-        {{ atk.damage_dice }} {{ atk.damage_type | lower }}{% if atk.range %} &middot; range {{ atk.range.normal }}/{{ atk.range.long }}ft{% endif %}
+        {{ atk.damage_dice }} {{ atk.damage_type | lower }}{% if atk.range %} &middot; range {{ atk.range.normal_range }}/{{ atk.range.long_range }}ft{% endif %}
       </p>
     </div>
     {% else %}
@@ -329,6 +329,8 @@
   </section>
 
   <!-- ================= PAGE 3: SPELLS ================= -->
+  {# Non-casters have no spellcasting block at all, so the whole page is skipped. #}
+  {% if character_data.spell %}
   <section data-page="3">
     <h1 style="font-size:16px;display:block;margin-bottom:12px;">Spells</h1>
 
@@ -338,26 +340,23 @@
       <div class="row"><span>Attack bonus</span><span class="mono accent">[{{ "%+d"|format(character_data.spell.spell_attack_bonus_value) }}]</span></div>
     </div>
 
-    {% set has_slots = character_data.spell.spell_slots.values() | select("greaterthan", 0) | list %}
     <p class="section-label">Spell slots</p>
-    {% if has_slots %}
+    {% if character_data.spell.spell_slots %}
     <div style="margin-bottom:16px;">
-      {% for level_key, total in character_data.spell.spell_slots.items() %}
-      {% if total > 0 %}
+      {% for level, total in character_data.spell.spell_slots | dictsort %}
       <div class="slot-counter-row" data-slot-max="{{ total }}">
-        <span class="slot-label">Lv{{ level_key.split("_")[1] }}</span>
-        <button class="hp-btn slot-minus" aria-label="Use a {{ level_key }} slot" style="width:26px;height:26px;font-size:14px;">&minus;</button>
+        <span class="slot-label">Lv{{ level }}</span>
+        <button class="hp-btn slot-minus" aria-label="Use a level {{ level }} slot" style="width:26px;height:26px;font-size:14px;">&minus;</button>
         <span class="mono slot-current-max"><span class="slot-current">{{ total }}</span> / {{ total }}</span>
-        <button class="hp-btn slot-plus" aria-label="Restore a {{ level_key }} slot" style="width:26px;height:26px;font-size:14px;">+</button>
+        <button class="hp-btn slot-plus" aria-label="Restore a level {{ level }} slot" style="width:26px;height:26px;font-size:14px;">+</button>
       </div>
-      {% endif %}
       {% endfor %}
     </div>
     {% else %}
     <p class="empty-state">No spell slots.</p>
     {% endif %}
 
-    {% set spells_known = character_data.spell.spell_list | selectattr("name") | list %}
+    {% set spells_known = character_data.spell.spell_list %}
     {% if spells_known %}
       {% for lvl in range(0, 10) %}
         {% set spells_at_level = spells_known | selectattr("level", "equalto", lvl) | list | sort(attribute="name") %}
@@ -371,7 +370,9 @@
               <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </div>
             <div class="disclosure-body">
-              {% for para in (spell.description if spell.description else "No description recorded.") | paragraphs %}
+              <p class="weapon-sub">{{ spell.casting_time }} &middot; {{ spell.spell_range }} &middot; {{ spell.duration }}</p>
+              <p class="weapon-sub">{{ spell.components | map("capitalize") | join(", ") }}{% if spell.materials %} ({{ spell.materials }}){% endif %}</p>
+              {% for para in spell.description | paragraphs %}
               <p>{{ para }}</p>
               {% endfor %}
             </div>
@@ -384,13 +385,21 @@
     <p class="empty-state">No spells recorded.</p>
     {% endif %}
   </section>
+  {% endif %}
 
   <!-- ================= PAGE 4: ITEMS & CURRENCY ================= -->
   <section data-page="4">
     <h1 style="font-size:16px;display:block;margin-bottom:12px;">Items and currency</h1>
 
-    {% set equipped_weapons = character_data.equipment_and_currency.equipment.weapons | selectattr("equipped") | list %}
-    {% set equipped_armor = character_data.equipment_and_currency.equipment.armor | selectattr("equipped") | list %}
+    {# `items` must be read with ["items"], not .items — on a dict that would
+       resolve to the dict.items method instead of the key. #}
+    {% set weapons = character_data.equipment_and_currency.weapons %}
+    {% set armor = character_data.equipment_and_currency.armor %}
+    {% set gear = character_data.equipment_and_currency["items"] %}
+    {% set shield = character_data.equipment_and_currency.shield %}
+
+    {% set equipped_weapons = weapons | selectattr("equipped") | list %}
+    {% set equipped_armor = armor | selectattr("equipped") | list %}
     <p class="section-label">Equipped</p>
     <div class="row-list">
       {% for w in equipped_weapons %}
@@ -399,18 +408,16 @@
       {% for a in equipped_armor %}
       <div class="row"><span>{{ a.name }}</span><span class="secondary">{{ a.armor_category | capitalize }}</span></div>
       {% endfor %}
-      {% if character_data.equipment_and_currency.equipment.shield %}
+      {% if shield %}
       <div class="row"><span>Shield</span><span class="secondary">+2 ac</span></div>
       {% endif %}
-      {% if not equipped_weapons and not equipped_armor and not character_data.equipment_and_currency.equipment.shield %}
+      {% if not equipped_weapons and not equipped_armor and not shield %}
       <p class="empty-state">Nothing equipped.</p>
       {% endif %}
     </div>
 
-    {% set unequipped_weapons = character_data.equipment_and_currency.equipment.weapons | rejectattr("equipped") | list %}
-    {% set unequipped_armor = character_data.equipment_and_currency.equipment.armor | rejectattr("equipped") | list %}
-    {% set tools = character_data.equipment_and_currency.equipment.tools | selectattr("name") | list %}
-    {% set other = character_data.equipment_and_currency.equipment.other | selectattr("name") | list %}
+    {% set unequipped_weapons = weapons | rejectattr("equipped") | list %}
+    {% set unequipped_armor = armor | rejectattr("equipped") | list %}
 
     <p class="section-label">Currency</p>
     <div class="row-list">
@@ -432,7 +439,7 @@
             <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
           </span>
         </div>
-        <p class="disclosure-body">{{ w.damage_dice }} {{ w.damage_type | lower }}{% if w.range %} &middot; range {{ w.range.normal }}/{{ w.range.long }}ft{% endif %}</p>
+        <p class="disclosure-body">{{ w.damage_dice }} {{ w.damage_type | lower }}{% if w.range %} &middot; range {{ w.range.normal_range }}/{{ w.range.long_range }}ft{% endif %}</p>
       </div>
       {% endfor %}
       {% for a in unequipped_armor %}
@@ -444,42 +451,26 @@
             <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
           </span>
         </div>
-        <p class="disclosure-body">Base ac {{ a.armor_base }} &middot; {{ a.armor_category | capitalize }}</p>
+        <p class="disclosure-body">Base ac {{ a.armor_base_value }} &middot; {{ a.armor_category | capitalize }}{% if a.strength_requirement %} &middot; str {{ a.strength_requirement }}{% endif %}{% if a.stealth_penalty %} &middot; stealth disadvantage{% endif %}</p>
       </div>
       {% endfor %}
-      {% for t in tools %}
+      {% for g in gear %}
       <div class="disclosure" data-toggle>
         <div class="disclosure-head">
-          <span class="disclosure-title">{{ t.name }}</span>
-          <span style="display:flex;align-items:center;gap:8px;">
-            <span class="secondary" style="font-size:12px;">Tool</span>
-            <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-          </span>
-        </div>
-        <div class="disclosure-body">
-          {% for para in (t.description if t.description else "No description recorded.") | paragraphs %}
-          <p>{{ para }}</p>
-          {% endfor %}
-        </div>
-      </div>
-      {% endfor %}
-      {% for o in other %}
-      <div class="disclosure" data-toggle>
-        <div class="disclosure-head">
-          <span class="disclosure-title">{{ o.name }}{% if o.quantity and o.quantity > 1 %} ({{ o.quantity }}){% endif %}</span>
+          <span class="disclosure-title">{{ g.name }}{% if g.quantity > 1 %} ({{ g.quantity }}){% endif %}</span>
           <span style="display:flex;align-items:center;gap:8px;">
             <span class="secondary" style="font-size:12px;">Item</span>
             <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
           </span>
         </div>
         <div class="disclosure-body">
-          {% for para in (o.description if o.description else "No description recorded.") | paragraphs %}
+          {% for para in g.description | paragraphs %}
           <p>{{ para }}</p>
           {% endfor %}
         </div>
       </div>
       {% endfor %}
-      {% if not unequipped_weapons and not unequipped_armor and not tools and not other %}
+      {% if not unequipped_weapons and not unequipped_armor and not gear %}
       <p class="empty-state">Nothing in inventory.</p>
       {% endif %}
     </div>
@@ -506,10 +497,12 @@
       </svg>
       <span class="nav-dot"></span>
     </button>
+    {% if character_data.spell %}
     <button class="nav-btn" data-nav="3" aria-label="Spells">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l1.6 4.4L18 10l-4.4 1.6L12 16l-1.6-4.4L6 10l4.4-1.6z"></path><path d="M18.5 15.5l0.7 1.8 1.8 0.7-1.8 0.7-0.7 1.8-0.7-1.8-1.8-0.7 1.8-0.7z"></path></svg>
       <span class="nav-dot"></span>
     </button>
+    {% endif %}
     <button class="nav-btn" data-nav="4" aria-label="Items and currency">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7V6a3 3 0 0 1 6 0v1"></path><path d="M6 9a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z"></path><path d="M9.5 12.5h5"></path><path d="M9.5 15.5h5"></path></svg>
       <span class="nav-dot"></span>
