@@ -8,8 +8,13 @@ dependencies = [
     "jinja2>=3.1.6",
     "packaging==26.2",
     "pluggy==1.6.0",
+    "pydantic>=2.13.5",
     "pygments==2.20.0",
+    "pymongo[srv]==3.12",
     "pytest==9.1.1",
     "python-dotenv>=1.2.3",
     "pyyaml==6.0.3",
 ]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

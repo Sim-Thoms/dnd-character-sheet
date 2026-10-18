@@ -1,7 +1,6 @@
 # Folders
-character_sheets
+character_sheets/
 data/raw
-db.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

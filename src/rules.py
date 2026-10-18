@@ -1,12 +1,4 @@
-from enum import Enum
-
-
-
-class ArmorCategory(Enum):
-    NONE = "none"
-    LIGHT = "light"
-    MEDIUM = "medium"
-    HEAVY = "heavy"
+from enums import ArmorCategory
 
     
 
