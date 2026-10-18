@@ -12,8 +12,6 @@ from rules import (
     spell_attack_bonus,
 )
 
-# Which ability each skill is rolled against. Keyed by the Skill enum so the
-# list of skills lives in exactly one place.
 SKILL_ABILITIES = {
     Skill.ACROBATICS: Ability.DEXTERITY,
     Skill.ANIMAL_HANDLING: Ability.WISDOM,
@@ -264,11 +262,11 @@ def assemble_character_data(character: Character) -> dict:
     }
 
     # Equipment & Currency
-    character_data["equipment_and_currency"] = character.equipment_and_currency.model_dump()
+    character_data["equipment_and_currency"] = character.equipment_and_currency.model_dump(mode="json")
 
     # Features & Traits
     character_data["features_and_traits"] = [
-        feature.model_dump() for feature in character.features_and_traits
+        feature.model_dump(mode="json") for feature in character.features_and_traits
     ]
 
     # Spells — absent entirely for non-casters.
@@ -286,7 +284,7 @@ def assemble_character_data(character: Character) -> dict:
                 proficiency_bonus_value, spell_ability_mod
             ),
             "spell_slots": spellcasting.spell_slots,
-            "spell_list": [spell.model_dump() for spell in spellcasting.spell_list],
+            "spell_list": [spell.model_dump(mode="json") for spell in spellcasting.spell_list],
         }
 
     return character_data
