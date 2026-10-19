@@ -1,8 +1,9 @@
 from jinja2 import Environment, FileSystemLoader
-from schematic import Character
 from datetime import date
-import yaml
 import re
+from db import (
+    get_character
+)
 from builder import(
     assemble_character_data,
     SKILL_ABILITIES,
@@ -10,17 +11,20 @@ from builder import(
 )
 
 
+CHARACTER_NAME = "Mossy Endoxy"
+
 
 ## Load character data 
-with open("data/raw/Mossy Endoxy.yaml", "r", encoding="utf-8") as f:
-    character_yaml = yaml.safe_load(f)
-character = Character(**character_yaml)
+character = get_character(CHARACTER_NAME)
 character_data = assemble_character_data(character)
+
+
 
 def paragraphs(text):
     """Split a description into paragraphs on blank lines, collapsing wrapped lines."""
     paras = re.split(r"\n\s*\n", str(text or ""))
     return [re.sub(r"\s+", " ", p).strip() for p in paras if p.strip()]
+
 
 ## Render the mobile template
 env = Environment(loader=FileSystemLoader("templates"))
@@ -32,9 +36,10 @@ html_output = template.render(
     ability_abbreviations=ABILITY_ABBREVIATIONS,
 )
 
+
 ## Write the self-contained HTML file, named after the character and the date it was generated
 run_date = date.today().isoformat()
-output_path = f"character_sheets/{character_data['identity']['name']} ({run_date}).html"
+output_path = f"character_sheets/{character.identity.name} ({run_date}).html"
 with open(output_path, "w", encoding="utf-8") as f:
     f.write(html_output)
 

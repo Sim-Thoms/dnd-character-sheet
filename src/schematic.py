@@ -11,10 +11,10 @@ from enums import(
 )
 
 
-
 # ======================= Shared Aliases =======================
 NonEmptyStr = Annotated[str, Field(min_length=1)]
 NonNegativeInt = Annotated[int, Field(ge=0)]
+
 
 # ========================== Identity ==========================
 class Identity(BaseModel):
@@ -23,6 +23,7 @@ class Identity(BaseModel):
     level: int = Field(ge=1, le=20)
     class_: NonEmptyStr = Field(alias='class')
     subclass: NonEmptyStr | None = None
+
 
 # ===================== Abilities & Skills =====================
 ScoreValue = Annotated[int, Field(ge=1, le=30)]
@@ -35,15 +36,18 @@ class AbilityScores(BaseModel):
     wisdom: ScoreValue
     charisma: ScoreValue
 
+
 class AbilitiesAndSkills(BaseModel):
     ability_scores: AbilityScores
     saving_throw_proficiencies: list[Ability] = Field(min_length=2, max_length=2)
     skill_proficiencies: dict[Skill, Proficiency] = {}
 
+
 # =========================== Combat ===========================
 class HP(BaseModel):
     hit_dice: Dice
     level_hp: list[Annotated[int, Field(ge=1)]] = Field(min_length=1)
+
 
 class Combat(BaseModel):
     armor_class_bonus: int = 0
@@ -51,11 +55,13 @@ class Combat(BaseModel):
     speed: int 
     hp: HP
 
+
 # ===================== Features & Traits ======================
 class FeatureOrTrait(BaseModel):
     name: NonEmptyStr
     label: Label
     description: NonEmptyStr  
+
 
 # ======================== Spellcasting ========================
 class Spell(BaseModel):
@@ -78,10 +84,12 @@ class Spellcasting(BaseModel):
     ] = {}
     spell_list: list[Spell] = []
 
+
 # =================== Equipment and Currency ===================
 class Range(BaseModel):
     normal_range: NonNegativeInt 
     long_range: NonNegativeInt 
+
 
 class Weapon(BaseModel):
     name: NonEmptyStr
@@ -95,6 +103,7 @@ class Weapon(BaseModel):
     damage_bonus: int = 0
     attack_roll_bonus: int = 0
 
+
 class Armor(BaseModel):
     name: NonEmptyStr
     armor_base_value: NonNegativeInt
@@ -104,10 +113,12 @@ class Armor(BaseModel):
     stealth_penalty: bool = False
     strength_requirement: NonNegativeInt = 0
 
+
 class Item(BaseModel):
     name: NonEmptyStr
     description: NonEmptyStr
     quantity: NonNegativeInt = 1
+
 
 class Currency(BaseModel):
     copper: NonNegativeInt = 0 # 10cp = 1sp
@@ -115,6 +126,7 @@ class Currency(BaseModel):
     electrum: NonNegativeInt = 0 # 2ep = 1gp
     gold: NonNegativeInt = 0 # 10gp = 1pp
     platinum: NonNegativeInt = 0
+
 
 class EquipmentAndCurrency(BaseModel):
     currency: Currency
@@ -130,6 +142,7 @@ class EquipmentAndCurrency(BaseModel):
             names = ", ".join(equipped_armor)
             raise ValueError(f"At most one armor can be equipped; equipped: {names}")
         return self    
+
 
 # ========================== Character =========================
 class Character(BaseModel):

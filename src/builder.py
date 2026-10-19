@@ -12,6 +12,7 @@ from rules import (
     spell_attack_bonus,
 )
 
+
 SKILL_ABILITIES = {
     Skill.ACROBATICS: Ability.DEXTERITY,
     Skill.ANIMAL_HANDLING: Ability.WISDOM,
@@ -33,6 +34,7 @@ SKILL_ABILITIES = {
     Skill.SURVIVAL: Ability.WISDOM,
 }
 
+
 ABILITY_ABBREVIATIONS = {
     Ability.STRENGTH: "Str",
     Ability.DEXTERITY: "Dex",
@@ -41,6 +43,7 @@ ABILITY_ABBREVIATIONS = {
     Ability.WISDOM: "Wis",
     Ability.CHARISMA: "Cha",
 }
+
 
 DEFAULT_ACCENT_COLOR = "#5f5f5f"  # fallback for any class not listed below
 CLASS_ACCENT_COLORS = {

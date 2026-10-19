@@ -1,7 +1,6 @@
 from enums import ArmorCategory
 
     
-
 def ability_modifier(score: int) -> int:
     """
     Calculate the ability modifier for a given ability score.
@@ -11,6 +10,7 @@ def ability_modifier(score: int) -> int:
     """
     return (score - 10) // 2
 
+
 def proficiency_bonus(level: int) -> int:
     """
     Calculate the proficiency bonus for a given level.
@@ -19,6 +19,7 @@ def proficiency_bonus(level: int) -> int:
     return:: The proficiency bonus.
     """
     return 2 + (level - 1) // 4
+
 
 def skill_bonus(score: int, prof_bonus: int, proficient: bool = False, expertise: bool = False) -> int:
     """
@@ -35,6 +36,7 @@ def skill_bonus(score: int, prof_bonus: int, proficient: bool = False, expertise
     if proficient:
         return ability_modifier(score) + prof_bonus
     return ability_modifier(score)
+
  
 def saving_throw_bonus(score: int, prof_bonus: int, proficient: bool = False) -> int:
     """
@@ -49,6 +51,7 @@ def saving_throw_bonus(score: int, prof_bonus: int, proficient: bool = False) ->
         return ability_modifier(score) + prof_bonus
     return ability_modifier(score)
 
+
 def passive_score(skill_bonus: int) -> int:
     """
     Calculate the passive score for a given skill.
@@ -57,6 +60,7 @@ def passive_score(skill_bonus: int) -> int:
     return:: The passive score.
     """
     return 10 + skill_bonus
+
 
 def initiative_bonus(dex_modifier: int, additional_bonus: int = 0) -> int:
     """
@@ -67,6 +71,7 @@ def initiative_bonus(dex_modifier: int, additional_bonus: int = 0) -> int:
     return:: The initiative bonus.
     """
     return dex_modifier + additional_bonus
+
 
 def armor_class(armor_base: int, dex_modifier: int, armor: ArmorCategory, shield: bool = False, additional_bonus: int = 0) -> int:
     """
@@ -93,6 +98,7 @@ def armor_class(armor_base: int, dex_modifier: int, armor: ArmorCategory, shield
     elif armor == ArmorCategory.HEAVY: 
         return armor_base + shield_value + additional_bonus
 
+
 def spell_save_dc(proficiency_bonus: int, spell_ability_mod: int) -> int:
     """
     Calculate the spell save DC for the character.
@@ -102,6 +108,7 @@ def spell_save_dc(proficiency_bonus: int, spell_ability_mod: int) -> int:
     return:: The spell save DC for the character.
     """
     return 8 + proficiency_bonus + spell_ability_mod
+
 
 def spell_attack_bonus(proficiency_bonus: int, spell_ability_mod: int) -> int:
     """
