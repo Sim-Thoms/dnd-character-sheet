@@ -2,9 +2,11 @@ from pydoc import doc
 from pymongo.server_api import ServerApi
 from pymongo import MongoClient
 from dotenv import load_dotenv
-from schematic import Character
 import os 
-
+from schematic import (
+    Character,
+    Identity,
+)
 
 DATABASE = "DnD"
 COLLECTION = "character_sheets"
@@ -52,6 +54,19 @@ def get_character(character_name: str) -> Character:
         return Character(**doc)
 
 
+def list_characters() -> list[Identity]:
+    """
+    Returns a list of all character names in the MongoDB server.
+
+    return:: A list of character names.
+    """
+    with open_mongo_client() as client:
+        db = client[DATABASE]
+        collection = db[COLLECTION]
+        cursor = collection.find({}, {"identity": 1, "_id": 0}).sort("identity.name")
+        return [Identity(**doc["identity"]) for doc in cursor]
+
+
 if __name__ == "__main__":
     import yaml
 
@@ -67,10 +82,15 @@ if __name__ == "__main__":
     else: 
         print(f"{character_sheet['identity']['name']} was successfully updated. Matched: {result.matched_count}")
 
+    # List all characters in the database
+    characters = list_characters()
+    print("Characters in the database:")
+    for char in characters:
+        print(f"- {char.name} - Lv{char.level} {char.race} {char.class_} ({char.subclass})")
+
     # Retrieve the character sheet from MongoDB
     from_mongo = get_character(character_sheet['identity']['name'])
     print(from_mongo == character)  # Should print True if the retrieved character matches the original
-
 
 
 
