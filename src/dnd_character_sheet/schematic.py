@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, model_validator
 from typing import Annotated
-from enums import(
+from dnd_character_sheet.enums import(
     Ability,
     Skill,
     Proficiency,

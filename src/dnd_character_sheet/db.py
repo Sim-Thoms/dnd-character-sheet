@@ -1,18 +1,43 @@
-from pydoc import doc
+from typing import Any, ParamSpec, TypeVar
+from functools import wraps
+from collections.abc import Callable
+from pymongo.errors import ConnectionFailure
 from pymongo.server_api import ServerApi
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os 
-from schematic import (
+from dnd_character_sheet.schematic import (
     Character,
     Identity,
 )
 
 DATABASE = "DnD"
 COLLECTION = "character_sheets"
+P = ParamSpec("P")
+R = TypeVar("R")
 
 
-def open_mongo_client():
+class DatabaseUnavailable(Exception):
+    """ Custom exception to indicate that the MongoDB server is unavailable."""
+
+
+def translates_connection_errors(func: Callable[P, R]) -> Callable[P, R]:
+    """
+    A decorator that translates pymongo ConnectionFailure exceptions into a custom DatabaseUnavailable exception.
+    
+    param:: func: The function to decorate.
+    return:: The decorated function that raises DatabaseUnavailable on ConnectionFailure.
+    """
+    @wraps(func)
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+        try:
+            return func(*args, **kwargs)
+        except ConnectionFailure as err:
+            raise DatabaseUnavailable(str(err)) from err
+    return wrapper
+
+
+def open_mongo_client()-> MongoClient[dict[str, Any]]:
     """
     Returns a MongoClient instance connected to the MongoDB server.
     """
@@ -22,6 +47,7 @@ def open_mongo_client():
     return MongoClient(os.getenv("MONGODB_URI"), server_api=ServerApi('1'))
 
 
+@translates_connection_errors
 def save_character(character: Character):
     """
     Saves a character's information to the MongoDB server.
@@ -37,28 +63,28 @@ def save_character(character: Character):
         return result      
 
 
-def get_character(character_name: str) -> Character:
+@translates_connection_errors
+def get_character(character_name: str) -> Character | None:
     """
     Returns a character's information from the MongoDB server.
 
     param:: character_name: The name of the character to retrieve.
-    return:: The validated Character.
-    raise:: ValueError if no character with that name exists.
+    return:: The validated Character or None if not found.
     """
+
     with open_mongo_client() as client:
         db = client[DATABASE]
         collection = db[COLLECTION]
-        doc = collection.find_one({"identity.name": character_name})
-        if doc is None:
-            raise ValueError(f"Character not found: {character_name}")
-        return Character(**doc)
+        doc = collection.find_one({"identity.name": character_name}) # Returns None if no document is found with the specified name
+        return Character(**doc) if doc else None
 
 
+@translates_connection_errors
 def list_characters() -> list[Identity]:
     """
     Returns a list of all character names in the MongoDB server.
 
-    return:: A list of character names.
+    return:: A list of characters' identities.
     """
     with open_mongo_client() as client:
         db = client[DATABASE]

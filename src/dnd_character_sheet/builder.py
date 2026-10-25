@@ -1,6 +1,7 @@
-from enums import Ability, ArmorCategory, Proficiency, Skill
-from schematic import AbilityScores, Character
-from rules import (
+from typing import TypedDict, Any
+from dnd_character_sheet.enums import Ability, ArmorCategory, Proficiency, Skill
+from dnd_character_sheet.schematic import AbilityScores, Character, Range
+from dnd_character_sheet.rules import (
     ability_modifier,
     proficiency_bonus,
     skill_bonus,
@@ -51,6 +52,15 @@ CLASS_ACCENT_COLORS = {
 }
 
 
+class WeaponAttack(TypedDict):
+    name: str
+    to_hit: int
+    damage_dice: str
+    damage_bonus: int
+    damage_type: str
+    range: Range | None
+
+    
 def get_ability_modifiers(scores: AbilityScores) -> dict[str, int]:
     """
     Retrieve the ability modifiers for each ability of the character.
@@ -64,7 +74,7 @@ def get_ability_modifiers(scores: AbilityScores) -> dict[str, int]:
     }
 
 
-def get_skill_bonuses(character: Character) -> dict[str, dict]:
+def get_skill_bonuses(character: Character) -> dict[str, dict[str, int | bool]]:
     """
     Retrieve the skill bonuses for each skill of the character.
 
@@ -76,7 +86,7 @@ def get_skill_bonuses(character: Character) -> dict[str, dict]:
     proficiencies = character.abilities_and_skills.skill_proficiencies
     prof_bonus = proficiency_bonus(character.identity.level)
 
-    bonuses = {}
+    bonuses: dict[str, dict[str, int | bool]] = {}
     for skill, ability in SKILL_ABILITIES.items():
         score = getattr(scores, ability.value)
         level = proficiencies.get(skill)
@@ -181,7 +191,7 @@ def get_accent_color(character: Character) -> str:
     return CLASS_ACCENT_COLORS.get(character.identity.class_.lower(), DEFAULT_ACCENT_COLOR)
 
 
-def get_weapon_attacks(character: Character) -> list[dict]:
+def get_weapon_attacks(character: Character) -> list[WeaponAttack]:
     """
     Retrieve the attacks for each weapon the character has equipped.
 
@@ -191,7 +201,7 @@ def get_weapon_attacks(character: Character) -> list[dict]:
     scores = character.abilities_and_skills.ability_scores
     prof_bonus = proficiency_bonus(character.identity.level)
 
-    attacks = []
+    attacks: list[WeaponAttack] = []
     for weapon in character.equipment_and_currency.weapons:
         if not weapon.equipped:
             continue
@@ -207,7 +217,7 @@ def get_weapon_attacks(character: Character) -> list[dict]:
             "damage_dice": weapon.damage_dice,
             "damage_bonus": ability_mod + weapon.damage_bonus,
             "damage_type": weapon.damage_type,
-            "range": weapon.range.model_dump() if weapon.range else None,
+            "range": weapon.range,
         })
     return attacks
 
@@ -226,14 +236,14 @@ def get_maximum_hp(character: Character) -> int:
     return sum(character.combat.hp.level_hp) + (character.identity.level * con_modifier)
 
 
-def assemble_character_data(character: Character) -> dict:
+def assemble_character_data(character: Character) -> dict[str, Any]:
     """
     Assemble character data into a structured dictionary for rendering.
 
     param:: character: The validated character.
     return:: A dictionary of raw and computed values for the template.
     """
-    character_data = {}
+    character_data: dict[str, Any] = {}
 
     # Identity — model_dump(by_alias=True) keeps the key as `class`, not `class_`.
     identity = character.identity.model_dump(by_alias=True)
