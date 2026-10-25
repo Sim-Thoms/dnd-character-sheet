@@ -6,7 +6,7 @@ from pymongo.server_api import ServerApi
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os 
-from schematic import (
+from dnd_character_sheet.schematic import (
     Character,
     Identity,
 )

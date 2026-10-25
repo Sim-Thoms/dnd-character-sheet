@@ -54,7 +54,7 @@ wheels = [
 [[package]]
 name = "dnd-character-sheet"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "colorama" },
     { name = "fastapi" },

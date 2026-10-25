@@ -1,4 +1,4 @@
-from enums import ArmorCategory
+from dnd_character_sheet.enums import ArmorCategory
 
     
 def ability_modifier(score: int) -> int:

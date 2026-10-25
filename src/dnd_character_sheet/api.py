@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, status, Request
-from schematic import Character, Identity
+from dnd_character_sheet.schematic import Character, Identity
 from fastapi.responses import JSONResponse
-from db import (
+from dnd_character_sheet.db import (
     DatabaseUnavailable,
     list_characters,
     get_character,
