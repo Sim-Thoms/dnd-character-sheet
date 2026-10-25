@@ -3,6 +3,7 @@ from functools import wraps
 from collections.abc import Callable
 from pymongo.errors import ConnectionFailure
 from pymongo.server_api import ServerApi
+from pymongo.results import InsertOneResult, UpdateResult
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os 
@@ -19,6 +20,10 @@ R = TypeVar("R")
 
 class DatabaseUnavailable(Exception):
     """ Custom exception to indicate that the MongoDB server is unavailable."""
+
+
+class CharacterAlreadyExists(Exception):
+    """ Custom exception to indicate that a character with the same name already exists in the database."""
 
 
 def translates_connection_errors(func: Callable[P, R]) -> Callable[P, R]:
@@ -48,19 +53,41 @@ def open_mongo_client()-> MongoClient[dict[str, Any]]:
 
 
 @translates_connection_errors
-def save_character(character: Character):
+def create_character(character: Character) -> InsertOneResult:
     """
-    Saves a character's information to the MongoDB server.
-
-    param:: character: The Character object to save.
-    return:: The result of the upsert operation.
+    Creates a new character in the MongoDB server.
+    param:: character: The Character object to create.
+    return:: The result of the insert operation.
+    raises:: CharacterAlreadyExists if a character with the same name already exists.
     """
     with open_mongo_client() as client:
         db = client[DATABASE]
         collection = db[COLLECTION]
-        query_filter = {"identity.name": character.identity.name}
-        result = collection.replace_one(query_filter, character.model_dump(mode="json", by_alias=True), upsert=True)
-        return result      
+
+        if collection.find_one({"identity.name": character.identity.name}):
+            raise CharacterAlreadyExists(f"Character with name '{character.identity.name}' already exists.")
+        
+        return collection.insert_one(character.model_dump(mode="json", by_alias=True))     
+
+
+@translates_connection_errors
+def edit_character(existing_name: str, character: Character) -> UpdateResult:
+    """
+    Edits an existing character in the MongoDB server.
+    param:: existing_name: The name of the character to edit.
+    param:: character: The updated Character object.
+    return:: The result of the update operation.
+    raises:: CharacterAlreadyExists if a character with the new name already exists.
+    """
+    with open_mongo_client() as client:
+        db = client[DATABASE]
+        collection = db[COLLECTION]
+
+        if existing_name != character.identity.name and collection.find_one({"identity.name": character.identity.name}):
+            raise CharacterAlreadyExists(f"Character with name '{character.identity.name}' already exists.")
+        
+        query_filter = {"identity.name": existing_name}
+        return collection.replace_one(query_filter, character.model_dump(mode="json", by_alias=True))
 
 
 @translates_connection_errors
@@ -99,14 +126,7 @@ if __name__ == "__main__":
     YAML_FILE = "Mossy Endoxy.yaml"
     with open(f"data/raw/{YAML_FILE}", "r", encoding="utf-8") as f:
         character_sheet = yaml.safe_load(f)
-
-    # Save the character sheet to MongoDB
     character = Character(**character_sheet)
-    result = save_character(character)
-    if result.upserted_id:
-        print(f"{character_sheet['identity']['name']} was successfully uploaded with ID: {result.upserted_id}")
-    else: 
-        print(f"{character_sheet['identity']['name']} was successfully updated. Matched: {result.matched_count}")
 
     # List all characters in the database
     characters = list_characters()
