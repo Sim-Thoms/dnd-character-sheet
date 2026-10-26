@@ -1,6 +1,6 @@
 from typing import TypedDict, Any
 from dnd_character_sheet.enums import Ability, ArmorCategory, Proficiency, Skill
-from dnd_character_sheet.schematic import AbilityScores, Character, Range
+from dnd_character_sheet.schema import AbilityScores, Character, Range
 from dnd_character_sheet.rules import (
     ability_modifier,
     proficiency_bonus,

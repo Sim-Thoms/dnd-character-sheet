@@ -3,11 +3,11 @@ from functools import wraps
 from collections.abc import Callable
 from pymongo.errors import ConnectionFailure
 from pymongo.server_api import ServerApi
-from pymongo.results import InsertOneResult, UpdateResult
+from pymongo.results import InsertOneResult, UpdateResult, DeleteResult
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os 
-from dnd_character_sheet.schematic import (
+from dnd_character_sheet.schema import (
     Character,
     Identity,
 )
@@ -24,6 +24,10 @@ class DatabaseUnavailable(Exception):
 
 class CharacterAlreadyExists(Exception):
     """ Custom exception to indicate that a character with the same name already exists in the database."""
+
+
+class CharacterNotFound(Exception):
+    """ Custom exception to indicate that a character was not found in the database."""
 
 
 def translates_connection_errors(func: Callable[P, R]) -> Callable[P, R]:
@@ -78,38 +82,49 @@ def edit_character(existing_name: str, character: Character) -> UpdateResult:
     param:: character: The updated Character object.
     return:: The result of the update operation.
     raises:: CharacterAlreadyExists if a character with the new name already exists.
+    raises:: CharacterNotFound if the character to edit does not exist.
     """
     with open_mongo_client() as client:
         db = client[DATABASE]
-        collection = db[COLLECTION]
+        collection = db[COLLECTION]    
 
         if existing_name != character.identity.name and collection.find_one({"identity.name": character.identity.name}):
             raise CharacterAlreadyExists(f"Character with name '{character.identity.name}' already exists.")
-        
+
         query_filter = {"identity.name": existing_name}
-        return collection.replace_one(query_filter, character.model_dump(mode="json", by_alias=True))
+        result = collection.replace_one(query_filter, character.model_dump(mode="json", by_alias=True))
+
+        if result.matched_count == 0:
+            raise CharacterNotFound(f"Character with name '{existing_name}' not found.")    
+        
+        return result
 
 
 @translates_connection_errors
-def get_character(character_name: str) -> Character | None:
+def get_character(character_name: str) -> Character:
     """
     Returns a character's information from the MongoDB server.
 
     param:: character_name: The name of the character to retrieve.
-    return:: The validated Character or None if not found.
+    return:: The validated Character.
+    raises:: CharacterNotFound if the character does not exist.
     """
 
     with open_mongo_client() as client:
         db = client[DATABASE]
         collection = db[COLLECTION]
-        doc = collection.find_one({"identity.name": character_name}) # Returns None if no document is found with the specified name
-        return Character(**doc) if doc else None
+        result = collection.find_one({"identity.name": character_name}) # Returns None if no document is found with the specified name
+
+        if result is None:
+            raise CharacterNotFound(f"Character with name '{character_name}' not found.")
+
+        return Character(**result)
 
 
 @translates_connection_errors
 def list_characters() -> list[Identity]:
     """
-    Returns a list of all character names in the MongoDB server.
+    Returns a list of all characters' identities.
 
     return:: A list of characters' identities.
     """
@@ -120,23 +135,24 @@ def list_characters() -> list[Identity]:
         return [Identity(**doc["identity"]) for doc in cursor]
 
 
-if __name__ == "__main__":
-    import yaml
+@translates_connection_errors
+def delete_character(character_name: str) -> DeleteResult:
+    """
+    Deletes a character from the MongoDB server.
 
-    YAML_FILE = "Mossy Endoxy.yaml"
-    with open(f"data/raw/{YAML_FILE}", "r", encoding="utf-8") as f:
-        character_sheet = yaml.safe_load(f)
-    character = Character(**character_sheet)
+    param:: character_name: The name of the character to delete.
+    return:: The result of the delete operation.
+    raises:: CharacterNotFound if the character does not exist.
+    """
+    with open_mongo_client() as client:
+        db = client[DATABASE]
+        collection = db[COLLECTION]
+        result = collection.delete_one({"identity.name": character_name})
 
-    # List all characters in the database
-    characters = list_characters()
-    print("Characters in the database:")
-    for char in characters:
-        print(f"- {char.name} - Lv{char.level} {char.race} {char.class_} ({char.subclass})")
-
-    # Retrieve the character sheet from MongoDB
-    from_mongo = get_character(character_sheet['identity']['name'])
-    print(from_mongo == character)  # Should print True if the retrieved character matches the original
+        if result.deleted_count == 0:
+            raise CharacterNotFound(f"Character with name '{character_name}' not found.")
+        
+        return result
 
 
 
